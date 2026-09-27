@@ -1,6 +1,6 @@
-package me.deadlight.ezchestshop.internal.v1_21_R2;
+package me.deadlight.ezchestshop.internal.v26_2;
 
-import java.util.Objects;
+import java.util.List;
 
 import me.deadlight.ezchestshop.utils.SignMenuFactory;
 import net.minecraft.core.BlockPos;
@@ -10,7 +10,7 @@ import net.minecraft.nbt.StringTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
@@ -19,7 +19,6 @@ import org.bukkit.entity.Player;
 public class MenuOpener {
 
     public static void openMenu(SignMenuFactory.Menu menu, Player player) {
-        Objects.requireNonNull(player, "player");
         if (!player.isOnline()) {
             return;
         }
@@ -39,10 +38,12 @@ public class MenuOpener {
         CompoundTag backText = new CompoundTag();
         ListTag backMessages = new ListTag();
         ListTag frontMessages = new ListTag();
+        List<String> text = menu.getText();
 
-        for (int line = 0; line < SignMenuFactory.SIGN_LINES; line++) {
-            String text = menu.getText().size() > line ? String.format(SignMenuFactory.NBT_FORMAT, menu.color(menu.getText().get(line))) : "";
-            StringTag nbtString = StringTag.valueOf(text);
+        for (int i = 0; i < Math.min(text.size(), SignMenuFactory.SIGN_LINES); i++) {
+            String rawLine = text.get(i);
+            String line = menu.color(rawLine);
+            StringTag nbtString = StringTag.valueOf(line);
 
             // Assuming you want to set the same text for both back and front
             backMessages.add(nbtString);
@@ -54,7 +55,7 @@ public class MenuOpener {
         compound.put("back_text", backText);
         compound.put("front_text", frontText);
 
-        ClientboundBlockEntityDataPacket tileEntityDataPacket = new ClientboundBlockEntityDataPacket(position, BlockEntityType.SIGN, compound);
+        ClientboundBlockEntityDataPacket tileEntityDataPacket = new ClientboundBlockEntityDataPacket(position, BlockEntityTypes.SIGN, compound);
         ServerGamePacketListenerImpl connection = ((CraftPlayer) player).getHandle().connection;
 
         connection.send(tileEntityDataPacket);
@@ -62,5 +63,4 @@ public class MenuOpener {
 
         menu.getFactory().getInputs().put(player, menu);
     }
-
 }

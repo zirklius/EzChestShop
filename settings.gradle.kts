@@ -20,6 +20,10 @@ dependencyResolutionManagement {
                 includeGroupAndSubgroups("com.sk89q.worldedit")
                 includeGroupAndSubgroups("org.enginehub.lin-bus")
             }
+            metadataSources {
+                mavenPom()
+                artifact()
+            }
         }
 
         maven("https://maven.playpro.com") {
@@ -77,8 +81,5 @@ pluginManagement {
 }
 
 include("core")
-include("internal:v1_21_R1")
-include("internal:v1_21_R2")
-include("internal:v1_21_R3")
-include("internal:v1_21_R6")
+include("internal:v26_2")
 include("paper-plugin")

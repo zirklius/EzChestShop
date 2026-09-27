@@ -18,22 +18,7 @@ public final class VersionUtil {
     private VersionUtil() {}
 
     public enum MinecraftVersion {
-        // The 1.21.6 implementation is compatible with 1.21.7, 1.21.8, 1.21.9, 1.21.10, and 1.21.11.
-        v1_21_11(4671, "1.21.11", "me.deadlight.ezchestshop.internal.v1_21_R6.NmsHandleImpl"),
-        v1_21_10(4556, "1.21.10", "me.deadlight.ezchestshop.internal.v1_21_R6.NmsHandleImpl"),
-        v1_21_9(4554, "1.21.9", "me.deadlight.ezchestshop.internal.v1_21_R6.NmsHandleImpl"),
-        v1_21_8(4440, "1.21.8", "me.deadlight.ezchestshop.internal.v1_21_R6.NmsHandleImpl"),
-        v1_21_7(4438, "1.21.7", "me.deadlight.ezchestshop.internal.v1_21_R6.NmsHandleImpl"),
-        v1_21_6(4435, "1.21.6", "me.deadlight.ezchestshop.internal.v1_21_R6.NmsHandleImpl"),
-        // The 1.21.4 implementation is compatible with 1.21.5.
-        v1_21_5(4325, "1.21.5", "me.deadlight.ezchestshop.internal.v1_21_R3.NmsHandleImpl"),
-        v1_21_4(4189, "1.21.4", "me.deadlight.ezchestshop.internal.v1_21_R3.NmsHandleImpl"),
-        // The 1.21.2 implementation is compatible with 1.21.3.
-        v1_21_3(4082, "1.21.3", "me.deadlight.ezchestshop.internal.v1_21_R2.NmsHandleImpl"),
-        v1_21_2(4080, "1.21.2", "me.deadlight.ezchestshop.internal.v1_21_R2.NmsHandleImpl"),
-        // The 1.21 implementation is compatible with 1.21.1.
-        v1_21_1(3955, "1.21.1", "me.deadlight.ezchestshop.internal.v1_21_R1.NmsHandleImpl"),
-        v1_21_0(3953, "1.21",   "me.deadlight.ezchestshop.internal.v1_21_R1.NmsHandleImpl");
+        v26_2(4903, "26.2", "me.deadlight.ezchestshop.internal.v26_2.NmsHandleImpl");
 
         private static final Int2ObjectMap<MinecraftVersion> SUPPORTED_VERSIONS = new Int2ObjectOpenHashMap<>();
 

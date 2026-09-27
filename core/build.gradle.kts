@@ -3,12 +3,12 @@ plugins {
 }
 
 java {
-    toolchain.languageVersion = JavaLanguageVersion.of(21)
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
 }
 
 dependencies {
     // Provided dependencies
-    compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:26.2.build.+")
     compileOnly("org.apache.logging.log4j:log4j-core:2.24.1") {
         because("Provided by Minecraft.")
     }
@@ -33,7 +33,7 @@ dependencies {
     compileOnly("com.github.Slimefun:Slimefun4:RC-37")
     compileOnly("net.alex9849.advancedregionmarket:advancedregionmarket:3.5.5")
     compileOnly("me.clip:placeholderapi:2.12.3")
-    compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.17")
+    compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.19")
 }
 
 tasks {

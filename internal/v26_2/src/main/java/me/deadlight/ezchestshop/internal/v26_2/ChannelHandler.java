@@ -1,4 +1,4 @@
-package me.deadlight.ezchestshop.internal.v1_21_R2;
+package me.deadlight.ezchestshop.internal.v26_2;
 
 import java.util.Map;
 
@@ -32,9 +32,9 @@ public class ChannelHandler extends ChannelInboundHandlerAdapter {
                 return;
             }
 
-            int entityID = packet.getEntityId();
-            if (Utils.activeOutlines.containsKey(entityID)) {
-                BlockOutline outline = Utils.activeOutlines.get(entityID);
+            int entityId = packet.entityId();
+            if (Utils.activeOutlines.containsKey(entityId)) {
+                BlockOutline outline = Utils.activeOutlines.get(entityId);
                 outline.hideOutline();
                 //Then it means somebody is clicking on the outline shulkerbox
                 EzChestShop.getScheduler().runTaskLater(outline.block.getLocation(), () -> Bukkit.getPluginManager().callEvent(
@@ -56,4 +56,5 @@ public class ChannelHandler extends ChannelInboundHandlerAdapter {
 
         ctx.fireChannelRead(msg);
     }
+
 }

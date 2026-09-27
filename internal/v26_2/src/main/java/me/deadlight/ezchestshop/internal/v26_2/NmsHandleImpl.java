@@ -1,4 +1,4 @@
-package me.deadlight.ezchestshop.internal.v1_21_R2;
+package me.deadlight.ezchestshop.internal.v26_2;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,7 +20,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -191,7 +191,7 @@ public final class NmsHandleImpl implements NmsHandle {
         ServerPlayer ServerPlayer = craftPlayer.getHandle();
         ServerGamePacketListenerImpl ServerGamePacketListenerImpl = ServerPlayer.connection;
 
-        Shulker shulker = new Shulker(EntityType.SHULKER, ServerLevel);
+        Shulker shulker = new Shulker(EntityTypes.SHULKER, ServerLevel);
         shulker.setInvisible(true); //invisible
         shulker.setNoGravity(true); //no gravity
         shulker.setDeltaMovement(0, 0, 0); //set velocity
