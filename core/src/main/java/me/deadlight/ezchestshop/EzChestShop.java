@@ -34,6 +34,7 @@ import me.deadlight.ezchestshop.listeners.PlayerJoinListener;
 import me.deadlight.ezchestshop.listeners.PlayerLeavingListener;
 import me.deadlight.ezchestshop.listeners.PlayerLookingAtChestShop;
 import me.deadlight.ezchestshop.listeners.PlayerTransactionListener;
+import me.deadlight.ezchestshop.listeners.ShopExplosionListener;
 import me.deadlight.ezchestshop.listeners.UpdateChecker;
 import me.deadlight.ezchestshop.tasks.LoadedChunksTask;
 import me.deadlight.ezchestshop.utils.ASHologram;
@@ -474,14 +475,15 @@ public final class EzChestShop extends JavaPlugin {
         pluginManager.registerEvents(new UpdateChecker(), this);
         pluginManager.registerEvents(new PlayerJoinListener(), this);
         pluginManager.registerEvents(new ChestShopBreakPrevention(), this);
+        pluginManager.registerEvents(new ShopExplosionListener(), this);
         // Add Config check over here, to change the Shop display varient.
         // PlayerLooking is less laggy but probably harder to spot.
         if (Config.holodistancing) {
             pluginManager.registerEvents(new PlayerCloseToChestListener(), this);
         } else {
             pluginManager.registerEvents(new PlayerLookingAtChestShop(), this);
-            pluginManager.registerEvents(new PlayerLeavingListener(), this);
         }
+        pluginManager.registerEvents(new PlayerLeavingListener(), this);
         //This is for integration with AdvancedRegionMarket
         if (advancedregionmarket) {
             pluginManager.registerEvents(new AdvancedRegionMarketIntegration(), this);

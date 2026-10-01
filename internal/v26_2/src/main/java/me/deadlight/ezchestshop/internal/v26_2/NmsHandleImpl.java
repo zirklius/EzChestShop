@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
@@ -11,6 +12,7 @@ import me.deadlight.ezchestshop.EzChestShop;
 import me.deadlight.ezchestshop.utils.NmsHandle;
 import me.deadlight.ezchestshop.utils.SignMenuFactory;
 import me.deadlight.ezchestshop.utils.UpdateSignListener;
+import me.deadlight.ezchestshop.utils.Utils;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -40,7 +42,7 @@ import org.slf4j.Logger;
 @NullMarked
 public final class NmsHandleImpl implements NmsHandle {
     private static final Logger LOGGER = EzChestShop.logger();
-    private static final Map<SignMenuFactory, UpdateSignListener> listeners = new HashMap<>();
+    private static final Map<SignMenuFactory, UpdateSignListener> listeners = new ConcurrentHashMap<>();
     private static final Map<Integer, Entity> entities = new HashMap<>();
 
     @Override
@@ -135,20 +137,43 @@ public final class NmsHandleImpl implements NmsHandle {
         listeners.put(signMenuFactory, new UpdateSignListener() {
             @Override
             public void listen(Player player, String[] array) {
-                SignMenuFactory.Menu menu = signMenuFactory.getInputs().remove(player);
+                SignMenuFactory.Menu menu = signMenuFactory.getInputs().get(player.getUniqueId());
 
                 if (menu == null) {
                     return;
                 }
+
+                if (menu.getOwner() != player || !Utils.isCurrentSession(player)) {
+                    signMenuFactory.getInputs().remove(player.getUniqueId(), menu);
+                    if (signMenuFactory.getInputs().isEmpty()) {
+                        signMenuFactory.unregister();
+                    }
+                    return;
+                }
+
+                if (!signMenuFactory.getInputs().remove(player.getUniqueId(), menu)) {
+                    return;
+                }
                 setCancelled(true);
+
+                if (menu.isForceClose()) {
+                    signMenuFactory.unregister();
+                    return;
+                }
 
                 boolean success = menu.getResponse().test(player, array);
 
                 if (!success && menu.isReopenIfFail() && !menu.isForceClose()) {
-                    EzChestShop.getScheduler().runTaskLater(() -> menu.open(player), 2L);
+                    EzChestShop.getScheduler().runTaskLater(() -> {
+                        if (Utils.isCurrentSession(player)) {
+                            menu.open(player);
+                        } else {
+                            signMenuFactory.unregister();
+                        }
+                    }, 2L);
+                } else {
+                    signMenuFactory.unregister();
                 }
-
-                removeSignMenuFactoryListen(signMenuFactory);
 
                 EzChestShop.getScheduler().runTaskLater(() -> {
                     if (player.isOnline()) {

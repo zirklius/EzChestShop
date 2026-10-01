@@ -61,6 +61,6 @@ public class MenuOpener {
         connection.send(tileEntityDataPacket);
         connection.send(editorPacket);
 
-        menu.getFactory().getInputs().put(player, menu);
+        menu.getFactory().getInputs().put(player.getUniqueId(), menu);
     }
 }

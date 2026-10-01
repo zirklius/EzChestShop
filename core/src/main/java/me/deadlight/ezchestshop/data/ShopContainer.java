@@ -13,7 +13,10 @@ import me.deadlight.ezchestshop.Constants;
 import me.deadlight.ezchestshop.enums.Changes;
 import me.deadlight.ezchestshop.events.PlayerTransactEvent;
 import me.deadlight.ezchestshop.integrations.CoreProtectIntegration;
+import me.deadlight.ezchestshop.listeners.ChatListener;
 import me.deadlight.ezchestshop.utils.DiscordWebhook;
+import me.deadlight.ezchestshop.utils.ShopGuiTracker;
+import me.deadlight.ezchestshop.utils.SignMenuFactory;
 import me.deadlight.ezchestshop.utils.Utils;
 import me.deadlight.ezchestshop.utils.holograms.ShopHologram;
 import me.deadlight.ezchestshop.utils.objects.EzShop;
@@ -71,13 +74,16 @@ public class ShopContainer {
      * @param loc the Location of the Shop.
      */
     public static void deleteShop(Location loc) {
+        ShopGuiTracker.closeAll(loc);
+        SignMenuFactory.cancelForShop(loc);
+        ChatListener.chatmap.values().removeIf(wait -> wait.containerBlock != null
+                && (Utils.isSameBlock(wait.containerBlock.getLocation(), loc)
+                || Utils.isSameBlock(Utils.resolveShopLocation(wait.containerBlock), loc)));
+
         DatabaseManager db = EzChestShop.getPlugin().getDatabase();
         db.deleteEntry("location", Utils.LocationtoString(loc), "shopdata");
         shopMap.remove(loc);
 
-        //This is not workign as intended
-//        InventoryHolder inventoryHolder = (InventoryHolder) loc.getBlock();
-//        inventoryHolder.getInventory().getViewers().forEach(viewer -> viewer.closeInventory());
 
         for (Player p : Bukkit.getOnlinePlayers()) {
             if (ShopHologram.hasHologram(loc, p))
@@ -272,6 +278,13 @@ public class ShopContainer {
     }
 
     public static void buyItem(Block containerBlock, double price, int count, ItemStack tthatItem, Player player, OfflinePlayer owner, PersistentDataContainer data) {
+        if (!Utils.isCurrentSession(player)) {
+            return;
+        }
+        if (Utils.resolveShopLocation(containerBlock) == null) {
+            player.sendMessage(LanguageManager.getInstance().chestShopProblem());
+            return;
+        }
         final var logger = EzChestShop.getPlugin().getComponentLogger();
         ItemStack thatItem = tthatItem.clone();
         LanguageManager lm = LanguageManager.getInstance();
@@ -342,6 +355,13 @@ public class ShopContainer {
     }
 
     public static void sellItem(Block containerBlock, double price, int count, ItemStack tthatItem, Player player, OfflinePlayer owner, PersistentDataContainer data) {
+        if (!Utils.isCurrentSession(player)) {
+            return;
+        }
+        if (Utils.resolveShopLocation(containerBlock) == null) {
+            player.sendMessage(LanguageManager.getInstance().chestShopProblem());
+            return;
+        }
         final var logger = EzChestShop.getPlugin().getComponentLogger();
         LanguageManager lm = LanguageManager.getInstance();
         ItemStack thatItem = tthatItem.clone();
@@ -411,6 +431,13 @@ public class ShopContainer {
     }
 
     public static void buyServerItem(Block containerBlock, double price, int count, Player player, ItemStack tthatItem, PersistentDataContainer data) {
+        if (!Utils.isCurrentSession(player)) {
+            return;
+        }
+        if (Utils.resolveShopLocation(containerBlock) == null) {
+            player.sendMessage(LanguageManager.getInstance().chestShopProblem());
+            return;
+        }
         final var logger = EzChestShop.getPlugin().getComponentLogger();
         ItemStack thatItem = tthatItem.clone();
         LanguageManager lm = LanguageManager.getInstance();
@@ -468,6 +495,13 @@ public class ShopContainer {
     }
 
     public static void sellServerItem(Block containerBlock, double price, int count, ItemStack tthatItem, Player player, PersistentDataContainer data) {
+        if (!Utils.isCurrentSession(player)) {
+            return;
+        }
+        if (Utils.resolveShopLocation(containerBlock) == null) {
+            player.sendMessage(LanguageManager.getInstance().chestShopProblem());
+            return;
+        }
         final var logger = EzChestShop.getPlugin().getComponentLogger();
         LanguageManager lm = LanguageManager.getInstance();
         ItemStack thatItem = tthatItem.clone();

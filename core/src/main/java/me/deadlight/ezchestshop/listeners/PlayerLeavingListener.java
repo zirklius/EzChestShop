@@ -1,5 +1,6 @@
 package me.deadlight.ezchestshop.listeners;
 
+import me.deadlight.ezchestshop.utils.SignMenuFactory;
 import me.deadlight.ezchestshop.utils.Utils;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,5 +18,6 @@ public final class PlayerLeavingListener implements Listener {
         Utils.nmsHandle.ejectConnection(player);
         ChatListener.chatmap.remove(player.getUniqueId());
         Utils.enabledOutlines.remove(player.getUniqueId());
+        SignMenuFactory.cancelAll(player.getUniqueId());
     }
 }

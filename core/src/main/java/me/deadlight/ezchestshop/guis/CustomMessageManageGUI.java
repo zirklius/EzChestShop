@@ -14,6 +14,7 @@ import me.deadlight.ezchestshop.data.ShopContainer;
 import me.deadlight.ezchestshop.data.gui.ContainerGui;
 import me.deadlight.ezchestshop.data.gui.ContainerGuiItem;
 import me.deadlight.ezchestshop.data.gui.GuiData;
+import me.deadlight.ezchestshop.utils.ShopGuiTracker;
 import me.deadlight.ezchestshop.utils.Utils;
 import me.deadlight.ezchestshop.utils.holograms.ShopHologram;
 import me.deadlight.ezchestshop.utils.objects.EzShop;
@@ -122,6 +123,7 @@ public class CustomMessageManageGUI {
             Utils.addItemIfEnoughSlots(paginatedGui, modify.getSlot(), modifyItem);
         }
 
+        ShopGuiTracker.track(paginatedGui, containerBlock);
         paginatedGui.open(player);
 
 
@@ -168,6 +170,7 @@ public class CustomMessageManageGUI {
         });
 
         gui.setItem(3, 1, backItem);
+        ShopGuiTracker.track(gui, containerBlock);
         gui.open(player);
     }
 

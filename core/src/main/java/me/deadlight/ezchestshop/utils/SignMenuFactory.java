@@ -1,10 +1,13 @@
 package me.deadlight.ezchestshop.utils;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiPredicate;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -18,14 +21,16 @@ public final class SignMenuFactory {
     public static final String NBT_FORMAT = "{\"text\":\"%s\"}";
     public static final String NBT_BLOCK_ID = "minecraft:sign";
 
+    private static final Set<SignMenuFactory> ACTIVE_FACTORIES = ConcurrentHashMap.newKeySet();
+
     private final Plugin plugin;
 
-    private final Map<Player, Menu> inputs;
+    private final Map<UUID, Menu> inputs;
 
 
     public SignMenuFactory(Plugin plugin) {
         this.plugin = plugin;
-        this.inputs = new HashMap<>();
+        this.inputs = new ConcurrentHashMap<>();
         this.listen();
     }
 
@@ -34,7 +39,48 @@ public final class SignMenuFactory {
     }
 
     private void listen() {
+        ACTIVE_FACTORIES.add(this);
         Utils.nmsHandle.signFactoryListen(this);
+    }
+
+    public void unregister() {
+        ACTIVE_FACTORIES.remove(this);
+        Utils.nmsHandle.removeSignMenuFactoryListen(this);
+    }
+
+    public static void cancelAll(UUID playerId) {
+        for (SignMenuFactory factory : ACTIVE_FACTORIES) {
+            if (factory.inputs.remove(playerId) != null && factory.inputs.isEmpty()) {
+                factory.unregister();
+            }
+        }
+    }
+
+    public static void cancelForShop(Location shopLocation) {
+        if (shopLocation == null) {
+            return;
+        }
+        for (SignMenuFactory factory : ACTIVE_FACTORIES) {
+            factory.inputs.entrySet().removeIf(entry -> {
+                Menu menu = entry.getValue();
+                if (!Utils.isSameBlock(menu.getShopLocation(), shopLocation)) {
+                    return false;
+                }
+                Player player = Bukkit.getPlayer(entry.getKey());
+                if (player != null && player.isOnline()) {
+                    menu.forceClose = true;
+                    player.closeInventory();
+                    Location fakeSign = menu.getLocation();
+                    if (fakeSign != null && fakeSign.getWorld() != null) {
+                        player.sendBlockChange(fakeSign, fakeSign.getBlock().getBlockData());
+                    }
+                }
+                return true;
+            });
+            if (factory.inputs.isEmpty()) {
+                factory.unregister();
+            }
+        }
     }
 
     public final class Menu {
@@ -45,8 +91,11 @@ public final class SignMenuFactory {
         private boolean reopenIfFail;
 
         private Location location;
+        private Location shopLocation;
 
-        private boolean forceClose;
+        private Player owner;
+
+        private volatile boolean forceClose;
 
         Menu(List<String> text) {
             this.text = text;
@@ -62,7 +111,18 @@ public final class SignMenuFactory {
             return this;
         }
 
+        public Menu shopLocation(Location shopLocation) {
+            if (shopLocation == null) {
+                this.shopLocation = null;
+                return this;
+            }
+            Location resolved = Utils.resolveShopLocation(shopLocation.getBlock());
+            this.shopLocation = resolved != null ? resolved.clone() : shopLocation.clone();
+            return this;
+        }
+
         public void open(Player player) {
+            this.owner = player;
             Utils.nmsHandle.openMenu(this, player);
         }
 
@@ -96,6 +156,14 @@ public final class SignMenuFactory {
             return location;
         }
 
+        public Location getShopLocation() {
+            return shopLocation;
+        }
+
+        public Player getOwner() {
+            return owner;
+        }
+
         public List<String> getText() {
             return text;
         }
@@ -117,7 +185,7 @@ public final class SignMenuFactory {
         }
     }
 
-    public Map<Player, Menu> getInputs() {
+    public Map<UUID, Menu> getInputs() {
         return inputs;
     }
 }

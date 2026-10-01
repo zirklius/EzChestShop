@@ -981,4 +981,33 @@ public final class Utils {
         container.set(Constants.ROTATION_KEY, PersistentDataType.STRING, shop.getSettings().getRotation());
         return true;
     }
+
+    public static boolean isCurrentSession(Player player) {
+        if (player == null || !player.isOnline()) {
+            return false;
+        }
+        return Bukkit.getPlayer(player.getUniqueId()) == player;
+    }
+
+    public static Location resolveShopLocation(Block block) {
+        if (block == null) {
+            return null;
+        }
+        Location location = block.getLocation();
+        if (ShopContainer.isShop(location)) {
+            return location;
+        }
+        EzShop shop = isPartOfTheChestShop(block);
+        return shop != null ? shop.getLocation() : null;
+    }
+
+    public static boolean isSameBlock(Location a, Location b) {
+        if (a == null || b == null) {
+            return false;
+        }
+        return Objects.equals(a.getWorld(), b.getWorld())
+                && a.getBlockX() == b.getBlockX()
+                && a.getBlockY() == b.getBlockY()
+                && a.getBlockZ() == b.getBlockZ();
+    }
 }

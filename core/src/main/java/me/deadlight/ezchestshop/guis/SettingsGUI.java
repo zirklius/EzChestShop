@@ -16,6 +16,7 @@ import me.deadlight.ezchestshop.data.gui.ContainerGui;
 import me.deadlight.ezchestshop.data.gui.ContainerGuiItem;
 import me.deadlight.ezchestshop.data.gui.GuiData;
 import me.deadlight.ezchestshop.listeners.ChatListener;
+import me.deadlight.ezchestshop.utils.ShopGuiTracker;
 import me.deadlight.ezchestshop.utils.SignMenuFactory;
 import me.deadlight.ezchestshop.utils.Utils;
 import me.deadlight.ezchestshop.utils.holograms.ShopHologram;
@@ -300,7 +301,7 @@ public class SettingsGUI {
                     player.playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.0f, 1.0f);
                     SignMenuFactory signMenuFactory = new SignMenuFactory(EzChestShop.getPlugin());
                     SignMenuFactory.Menu menu = signMenuFactory.newMenu(lm.changePriceSingGUI(false))
-                            .reopenIfFail(false).response((thatplayer, strings) -> {
+                            .reopenIfFail(false).shopLocation(containerBlock.getLocation()).response((thatplayer, strings) -> {
                                 try {
                                     if (strings[0].equalsIgnoreCase("")) {
                                         return false;
@@ -308,16 +309,16 @@ public class SettingsGUI {
                                     if (Utils.isNumeric(strings[0])) {
                                         double amount = Double.parseDouble(strings[0]);
                                         if (amount < 0) {
-                                            player.sendMessage(lm.negativePrice());
+                                            thatplayer.sendMessage(lm.negativePrice());
                                             return false;
                                         }
                                         EzChestShop.getScheduler().runTask(() -> {
                                             BlockState state = containerBlock.getState(false);
                                             // If these checks complete successfully continue.
-                                            if (changePrice(state, false, amount, player, containerBlock)) {
+                                            if (changePrice(state, false, amount, thatplayer, containerBlock)) {
                                                 ShopContainer.changePrice(state, amount, false);
-                                                ShopHologram.getHologram(containerBlock.getLocation(), player).updateSellPrice();
-                                                player.sendMessage(lm.shopSellPriceUpdated());
+                                                ShopHologram.getHologram(containerBlock.getLocation(), thatplayer).updateSellPrice();
+                                                thatplayer.sendMessage(lm.shopSellPriceUpdated());
                                             }
                                         });
                                     } else {
@@ -335,7 +336,7 @@ public class SettingsGUI {
                     player.playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.0f, 1.0f);
                     SignMenuFactory signMenuFactory = new SignMenuFactory(EzChestShop.getPlugin());
                     SignMenuFactory.Menu menu = signMenuFactory.newMenu(lm.changePriceSingGUI(true))
-                            .reopenIfFail(false).response((thatplayer, strings) -> {
+                            .reopenIfFail(false).shopLocation(containerBlock.getLocation()).response((thatplayer, strings) -> {
                                 try {
                                     if (strings[0].equalsIgnoreCase("")) {
                                         return false;
@@ -343,16 +344,16 @@ public class SettingsGUI {
                                     if (Utils.isNumeric(strings[0])) {
                                         double amount = Double.parseDouble(strings[0]);
                                         if (amount < 0) {
-                                            player.sendMessage(lm.negativePrice());
+                                            thatplayer.sendMessage(lm.negativePrice());
                                             return false;
                                         }
                                         EzChestShop.getScheduler().runTask(() -> {
                                             BlockState state = containerBlock.getState(false);
                                             // If these checks complete successfully continue.
-                                            if (changePrice(state, true, amount, player, containerBlock)) {
+                                            if (changePrice(state, true, amount, thatplayer, containerBlock)) {
                                                 ShopContainer.changePrice(state, amount, true);
-                                                ShopHologram.getHologram(containerBlock.getLocation(), player).updateBuyPrice();
-                                                player.sendMessage(lm.shopBuyPriceUpdated());
+                                                ShopHologram.getHologram(containerBlock.getLocation(), thatplayer).updateBuyPrice();
+                                                thatplayer.sendMessage(lm.shopBuyPriceUpdated());
                                             }
                                         });
                                     } else {
@@ -392,6 +393,7 @@ public class SettingsGUI {
             Utils.addItemIfEnoughSlots(gui, backItemStack.getSlot(), backItem);
         }
 
+        ShopGuiTracker.track(gui, containerBlock);
         gui.open(player);
     }
 
@@ -531,13 +533,13 @@ public class SettingsGUI {
          player.playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.0f, 1.0f);
          SignMenuFactory signMenuFactory = new SignMenuFactory(EzChestShop.getPlugin());
          SignMenuFactory.Menu menu = signMenuFactory.newMenu(lm.hologramMessageSingGUI(player, location))
-                 .reopenIfFail(false).response((thatplayer, strings) -> {
+                 .reopenIfFail(false).shopLocation(location).response((thatplayer, strings) -> {
                      try {
                          // Run checks here if allowed
                          EzChestShop.getScheduler().runTask(() -> {
                                      int lines = Config.settings_hologram_message_line_count_default;
                                      if (Config.permission_hologram_message_line_count) {
-                                         int maxShops = Utils.getMaxPermission(player, "ecs.shops.hologram.messages.lines.");
+                                         int maxShops = Utils.getMaxPermission(thatplayer, "ecs.shops.hologram.messages.lines.");
                                          maxShops = maxShops == -1 ? 4 : maxShops == 0 ? 1 : maxShops;
                                          lines = maxShops;
                                      }
@@ -545,7 +547,7 @@ public class SettingsGUI {
                                              .filter(s -> !s.trim().isEmpty()).collect(Collectors.toList());
                                      // Save data!
                                      ShopContainer.getShopSettings(location).setCustomMessages(messages);
-                                     ShopHologram.getHologram(location, player).setCustomHologramMessage(messages);
+                                     ShopHologram.getHologram(location, thatplayer).setCustomHologramMessage(messages);
                                  });
                      } catch (Exception e) {
                          return false;

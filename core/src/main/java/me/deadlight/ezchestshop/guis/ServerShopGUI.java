@@ -15,6 +15,7 @@ import me.deadlight.ezchestshop.data.ShopContainer;
 import me.deadlight.ezchestshop.data.gui.ContainerGui;
 import me.deadlight.ezchestshop.data.gui.ContainerGuiItem;
 import me.deadlight.ezchestshop.data.gui.GuiData;
+import me.deadlight.ezchestshop.utils.ShopGuiTracker;
 import me.deadlight.ezchestshop.utils.SignMenuFactory;
 import me.deadlight.ezchestshop.utils.Utils;
 import me.deadlight.ezchestshop.utils.objects.EzShop;
@@ -206,7 +207,7 @@ public final class ServerShopGUI {
                     player.closeInventory();
                     player.playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.0f, 1.0f);
                     SignMenuFactory signMenuFactory = new SignMenuFactory(EzChestShop.getPlugin());
-                    SignMenuFactory.Menu menu = signMenuFactory.newMenu(lm.signEditorGuiBuy(possibleCounts.getFirst())).reopenIfFail(false).response((thatplayer, strings) ->
+                    SignMenuFactory.Menu menu = signMenuFactory.newMenu(lm.signEditorGuiBuy(possibleCounts.getFirst())).reopenIfFail(false).shopLocation(containerBlock.getLocation()).response((thatplayer, strings) ->
                             {
                                 try {
                                     if (strings[0].equalsIgnoreCase("")) {
@@ -216,7 +217,7 @@ public final class ServerShopGUI {
                                     if (optionalAmount.isPresent()) {
                                         int amount = optionalAmount.getAsInt();
                                         if (amount < 1) {
-                                            player.sendMessage(lm.unsupportedInteger());
+                                            thatplayer.sendMessage(lm.unsupportedInteger());
                                             return false;
                                         }
                                         EzChestShop.getScheduler().runTask(() -> ShopContainer.buyServerItem(containerBlock, buyPrice * amount, amount, thatplayer, mainitem, data));
@@ -239,7 +240,7 @@ public final class ServerShopGUI {
                     player.closeInventory();
                     player.playSound(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1.0f, 1.0f);
                     SignMenuFactory signMenuFactory = new SignMenuFactory(EzChestShop.getPlugin());
-                    SignMenuFactory.Menu menu = signMenuFactory.newMenu(lm.signEditorGuiSell(possibleCounts.get(1))).reopenIfFail(false).response((thatplayer, strings) ->
+                    SignMenuFactory.Menu menu = signMenuFactory.newMenu(lm.signEditorGuiSell(possibleCounts.get(1))).reopenIfFail(false).shopLocation(containerBlock.getLocation()).response((thatplayer, strings) ->
                             {
                                 try {
                                     if (strings[0].equalsIgnoreCase("")) {
@@ -249,7 +250,7 @@ public final class ServerShopGUI {
                                     if (optionalAmount.isPresent()) {
                                         int amount = optionalAmount.getAsInt();
                                         if (amount < 1) {
-                                            player.sendMessage(lm.unsupportedInteger());
+                                            thatplayer.sendMessage(lm.unsupportedInteger());
                                             return false;
                                         }
                                         EzChestShop.getScheduler().runTask(() -> ShopContainer.sellServerItem(containerBlock, sellPrice * amount, amount, mainitem, thatplayer, data));
@@ -273,6 +274,7 @@ public final class ServerShopGUI {
             }
         }
 
+        ShopGuiTracker.track(gui, containerBlock);
         gui.open(player);
     }
 

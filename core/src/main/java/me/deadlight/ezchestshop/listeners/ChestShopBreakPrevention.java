@@ -12,22 +12,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.jetbrains.annotations.NotNull;
 
 public class ChestShopBreakPrevention implements Listener {
 
     //BlockBreak of this section is handled in BlockBreakListener.java
-    @EventHandler
-    public void onExplosion(EntityExplodeEvent event) {
-        if (!Config.shopProtection) {
-            return;
-        }
-
-        event.blockList().removeIf(block -> ShopContainer.isShop(block.getLocation()));
-        event.blockList().removeIf(block -> Utils.isPartOfTheChestShop(block) != null);
-    }
 
     @EventHandler
     public void onItemTransportingEntityValidateTargetEvent(ItemTransportingEntityValidateTargetEvent event) {
